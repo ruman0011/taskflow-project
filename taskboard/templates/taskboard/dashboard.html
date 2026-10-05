@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskFlow Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 16px Arial, sans-serif;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f4f7fb;
+      color: #172033;
+    }
+
+    h1 {
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .muted,
+    .helptext {
+      color: #64748b;
+    }
+
+    a {
+      color: #3157c8;
+    }
+
+    .cards {
+      display: flex;
+      gap: 16px;
+      margin: 28px 0;
+      flex-wrap: wrap;
+    }
+
+    .card,
+    .panel {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 3px 14px #17203312;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    .number {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .project-card {
+      padding: 16px;
+      border: 1px solid #e5eaf1;
+      border-radius: 10px;
+    }
+
+    .project-card h3 {
+      margin: 0 0 12px;
+    }
+
+    .project-actions,
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .project-actions form,
+    .actions form {
+      margin: 0;
+    }
+
+    .forms {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    form p {
+      margin: 14px 0;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 90px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 16px;
+      background: #3157c8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .danger-button {
+      background: #b42318;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+
+    .filters input,
+    .filters select {
+      width: auto;
+      min-width: 180px;
+    }
+
+    .button-link {
+      display: inline-block;
+      padding: 11px 16px;
+      border-radius: 7px;
+      background: #e8edff;
+      color: #3157c8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 13px 8px;
+      border-bottom: 1px solid #e5eaf1;
+    }
+
+    th {
+      color: #64748b;
+    }
+
+    .tasks {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    .status-badge,
+    .priority-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .status-todo {
+      background: #fff3cd;
+      color: #805b00;
+    }
+
+    .status-in_progress {
+      background: #e8edff;
+      color: #3157c8;
+    }
+
+    .status-done {
+      background: #dcf5e7;
+      color: #18794e;
+    }
+
+    .priority-low {
+      background: #edf2f7;
+      color: #475569;
+    }
+
+    .priority-medium {
+      background: #e8edff;
+      color: #3157c8;
+    }
+
+    .priority-high {
+      background: #ffe4e4;
+      color: #b42318;
+    }
+
+    .deadline-overdue {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #ffe4e4;
+      color: #b42318;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .site-footer {
+      margin: 28px 0 12px;
+      padding: 18px;
+      text-align: center;
+      color: #64748b;
+      border-top: 1px solid #e5eaf1;
+    }
+
+    .site-footer strong {
+      color: #3157c8;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>TaskFlow</h1>
+
+    <div class="muted">
+      Welcome, {{ request.user.username }} ·
+      <form method="post" action="{% url 'logout' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="padding: 5px 9px;">Log out</button>
+      </form>
+    </div>
+  </header>
+
+  <section class="cards">
+    <div class="card">
+      Projects
+      <div class="number">{{ project_count }}</div>
+    </div>
+
+    <div class="card">
+      Tasks
+      <div class="number">{{ total_tasks }}</div>
+    </div>
+
+    <div class="card">
+      Completed
+      <div class="number">{{ done_count }}</div>
+    </div>
+
+    <div class="card">
+      Overdue
+      <div class="number">{{ overdue_count }}</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Your projects</h2>
+
+    <div class="project-grid">
+      {% for project in projects %}
+        <article class="project-card">
+          <h3>{{ project.name }}</h3>
+
+          <div class="project-actions">
+            <a class="button-link" href="{% url 'edit_project' project.id %}">
+              Edit project
+            </a>
+
+            <form method="post" onsubmit="return confirm('Delete this project and all its tasks?');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete_project">
+              <input type="hidden" name="project_id" value="{{ project.id }}">
+              <button type="submit" class="danger-button">Delete project</button>
+            </form>
+          </div>
+
+          <p>{{ project.description|default:"No description yet." }}</p>
+
+          <p class="muted">
+            Created {{ project.created_at|date:"M j, Y" }} ·
+            {{ project.tasks.count }} tasks
+          </p>
+        </article>
+      {% empty %}
+        <p>No projects yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="forms">
+    <section class="panel">
+      <h2>Create a project</h2>
+
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_project">
+        {{ project_form.as_p }}
+        <button type="submit">Create project</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Create a task</h2>
+
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_task">
+        {{ task_form.as_p }}
+        <button type="submit">Create task</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="panel tasks">
+    <h2>Recent tasks</h2>
+
+    <form method="get" class="filters">
+      <input
+        type="search"
+        name="q"
+        value="{{ search_query }}"
+        placeholder="Search tasks or projects"
+      >
+
+      <select name="status">
+        <option value="">All statuses</option>
+
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <button type="submit">Filter</button>
+      <a href="{% url 'dashboard' %}">Clear</a>
+    </form>
+
+    <table>
+      <tr>
+        <th>Task</th>
+        <th>Project</th>
+        <th>Status</th>
+        <th>Priority</th>
+        <th>Due date</th>
+        <th>Actions</th>
+      </tr>
+
+      {% for task in tasks %}
+        <tr>
+          <td>{{ task.title }}</td>
+          <td>{{ task.project.name }}</td>
+
+          <td>
+            <span class="status-badge status-{{ task.status }}">
+              {{ task.get_status_display }}
+            </span>
+
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="update_status">
+              <input type="hidden" name="task_id" value="{{ task.id }}">
+
+              <select name="status">
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+
+              <button type="submit">Save status</button>
+            </form>
+          </td>
+
+          <td>
+            <span class="priority-badge priority-{{ task.priority }}">
+              {{ task.get_priority_display }}
+            </span>
+          </td>
+
+          <td>
+            {% if task.due_date and task.due_date < today and task.status != "done" %}
+              <span class="deadline-overdue">
+                Overdue · {{ task.due_date|date:"M j, Y" }}
+              </span>
+            {% else %}
+              {{ task.due_date|date:"M j, Y"|default:"—" }}
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="actions">
+              <a class="button-link" href="{% url 'edit_task' task.id %}">
+                Edit
+              </a>
+
+              <form method="post" onsubmit="return confirm('Delete this task?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_task">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">No tasks found.</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+
+  <footer class="site-footer">
+    TaskFlow · Built by <strong>Md Ruman Mia</strong>
+  </footer>
+</body>
+</html>

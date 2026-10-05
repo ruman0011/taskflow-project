@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit project · TaskFlow</title>
+  <style>
+    body {
+      font: 16px Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f4f7fb;
+      color: #172033;
+    }
+    .panel {
+      padding: 28px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 14px #17203312;
+    }
+    label { display: block; font-weight: 600; margin: 14px 0 6px; }
+    input, textarea {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font: inherit;
+    }
+    textarea { min-height: 90px; }
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 16px;
+      background: #3157c8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    a { margin-left: 12px; color: #3157c8; }
+  </style>
+</head>
+<body>
+  <section class="panel">
+    <h1>Edit project</h1>
+    <p>{{ project.name }}</p>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Save changes</button>
+      <a href="{% url 'dashboard' %}">Cancel</a>
+    </form>
+  </section>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in to TaskFlow</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 16px Arial, sans-serif;
+      max-width: 480px;
+      margin: 60px auto;
+      padding: 24px;
+      background: #f4f7fb;
+      color: #172033;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 3px 14px #17203312;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 14px 0 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 16px;
+      background: #3157c8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    a {
+      color: #3157c8;
+    }
+
+    .site-footer {
+      margin-top: 22px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .site-footer strong {
+      color: #3157c8;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="panel">
+    <h1>Log in to TaskFlow</h1>
+
+    {% if form.errors %}
+      <p>Your username or password was incorrect. Please try again.</p>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit">Log in</button>
+    </form>
+
+    <p>
+      New to TaskFlow?
+      <a href="{% url 'signup' %}">Create an account</a>
+    </p>
+  </section>
+
+  <footer class="site-footer">
+    TaskFlow · Built by <strong>Md Ruman Mia</strong>
+  </footer>
+</body>
+</html>
