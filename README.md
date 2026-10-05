@@ -1,5 +1,3 @@
-নিচের পুরো লেখাটা খালি `README.md`-এ paste করুন, তারপর **Commit changes** চাপুন।
-
 ```markdown
 # TaskFlow
 
